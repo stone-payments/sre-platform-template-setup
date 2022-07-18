@@ -1,9 +1,5 @@
 #!/usr/local/bin/python
 
-# This automation file will only exist in the template repository.
-# It will be removed as soon as a repository derived from this template
-# is created.
-#
 # This script will receive a JSON file, the keys are kebab-cased strings that
 # will be used to generate other cases. Those generated cases will be replaced
 # in the derived repository, and the value pairs are the new values that the
@@ -132,6 +128,8 @@ values_file = open(sys.argv[1], "r")
 replace_dict = generate_cases(json.loads(values_file.read()))
 main()
 values_file.close()
-print(os.system("cat /github/workspace/done/done.yml"))
+print("===========================")
+print(os.environ["GITHUB_WORKSPACE"])
+print("===========================")
 
 print("Script ended successfully!")
