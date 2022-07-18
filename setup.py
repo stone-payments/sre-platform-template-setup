@@ -132,5 +132,6 @@ values_file = open(sys.argv[1], "r")
 replace_dict = generate_cases(json.loads(values_file.read()))
 main()
 values_file.close()
+print(os.system("cat /github/workspace/done/done.yml"))
 
 print("Script ended successfully!")
