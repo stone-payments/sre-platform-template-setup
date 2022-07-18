@@ -1,0 +1,11 @@
+name: 'SRE Platform Template Setup'
+description: 'Replaces the repository content with proper values'
+inputs:
+  setup-file:
+    description: 'The name of the JSON file with the values to be changed'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.setup-file }}
