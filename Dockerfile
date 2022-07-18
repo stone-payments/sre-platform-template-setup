@@ -8,4 +8,4 @@ RUN pipenv install --deploy
 
 RUN ls -lh
 
-ENTRYPOINT ["entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
