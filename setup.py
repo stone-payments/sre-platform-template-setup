@@ -7,9 +7,6 @@
 #
 # Example of using this script:
 # python repo-setup.py test.json
-#
-# Obs.: To run this script locally, make sure that you add the item
-# "build/" to the IGNORE_FOLDERS list
 
 import os
 import sys
@@ -96,8 +93,9 @@ def replace(content: str) -> str:
 
 def delete_files():
     print("Deleting .github/  and .setup/ folders")
-    shutil.rmtree("/github/workspace/.github/")
-    shutil.rmtree("/github/workspace/.setup/")
+    workspace_dir = os.environ["GITHUB_WORKSPACE"]
+    shutil.rmtree(f"{workspace_dir}/.github/")
+    shutil.rmtree(f"{workspace_dir}/.setup/")
 
 
 def generate_cases(base_dict: dict) -> dict:
@@ -128,8 +126,5 @@ values_file = open(sys.argv[1], "r")
 replace_dict = generate_cases(json.loads(values_file.read()))
 main()
 values_file.close()
-print("===========================")
-print(os.environ["GITHUB_WORKSPACE"])
-print("===========================")
 
 print("Script ended successfully!")
