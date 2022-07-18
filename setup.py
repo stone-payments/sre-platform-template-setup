@@ -128,6 +128,7 @@ def generate_cases(base_dict: dict) -> dict:
 
 print("Script started! Loading bash input...")
 
+print(os.system("ls -lha"))
 values_file = open(sys.argv[1], "r")
 replace_dict = generate_cases(json.loads(values_file.read()))
 main()
