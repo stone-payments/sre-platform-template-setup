@@ -7,4 +7,4 @@ COPY . .
 RUN pipenv install --deploy
 
 
-ENTRYPOINT ["/junda.sh"]
+ENTRYPOINT ["/setup.py"]

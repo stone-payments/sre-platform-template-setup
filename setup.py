@@ -1,3 +1,5 @@
+#!/usr/local/bin/python
+
 # # This automation file will only exist in the template repository.
 # # It will be removed as soon as a repository derived from this template
 # # is created.
