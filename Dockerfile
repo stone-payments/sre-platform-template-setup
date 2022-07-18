@@ -8,4 +8,4 @@ RUN pipenv install --deploy
 
 RUN ls -lh
 
-ENTRYPOINT ["pipenv", "run", "python", "setup.py"]
+ENTRYPOINT ["entrypoint.sh"]
