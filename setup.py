@@ -100,8 +100,8 @@ def replace(content: str) -> str:
 
 def delete_files():
     print("Deleting .github/  and .setup/ folders")
-    shutil.rmtree(".github/")
-    shutil.rmtree(".setup/")
+    shutil.rmtree("/github/workspace/.github/")
+    shutil.rmtree("/github/workspace/.setup/")
 
 
 def generate_cases(base_dict: dict) -> dict:
@@ -127,11 +127,7 @@ def generate_cases(base_dict: dict) -> dict:
 
 
 print("Script started! Loading bash input...")
-print("===========================")
-directories = os.system("ls -lha")
-print(directories)
-print(os.system("pwd"))
-print("===========================")
+
 values_file = open(sys.argv[1], "r")
 replace_dict = generate_cases(json.loads(values_file.read()))
 main()
