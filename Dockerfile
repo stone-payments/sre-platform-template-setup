@@ -6,6 +6,5 @@ COPY . .
 
 RUN pipenv install --deploy
 
-RUN ls -lh
 
 ENTRYPOINT ["/entrypoint.sh"]
