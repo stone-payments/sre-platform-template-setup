@@ -1,10 +1,9 @@
 FROM python:3.8-alpine
 
-RUN python -m pip install --upgrade pipenv wheel
+RUN python -m pip install --upgrade wheel
 
 COPY . .
 
-RUN pipenv install --deploy
-
+RUN python -m pip install -r requirements.txt
 
 ENTRYPOINT ["/setup.py"]

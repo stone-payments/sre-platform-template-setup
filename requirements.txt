@@ -1,0 +1,2 @@
+-i https://pypi.org/simple
+pyhumps==3.0.2
