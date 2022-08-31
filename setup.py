@@ -21,6 +21,13 @@ IGNORE_FOLDERS = [
     ".setup",
 ]
 
+IGNORE_EXTENSIONS = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".svg",
+    ".bmp",
+]
 
 def main():
     root = Path(os.getcwd()).parent
@@ -29,6 +36,8 @@ def main():
         if is_ignored_folder(dirpath):
             continue
         for file in files:
+            if is_ignored_extension(file):
+                continue
             replace_file_content(os.path.join(dirpath, file))
             rename_file(file, dirpath)
     rename_folders(root)
@@ -38,6 +47,13 @@ def main():
 def is_ignored_folder(folder: str) -> bool:
     for ignored in IGNORE_FOLDERS:
         if ignored in folder:
+            return True
+    return False
+
+
+def is_ignored_extension(file_name: str):
+    for ignored in IGNORE_EXTENSIONS:
+        if file_name.endswith(ignored):
             return True
     return False
 
