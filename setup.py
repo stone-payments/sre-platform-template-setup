@@ -59,7 +59,7 @@ def is_ignored_extension(file_name: str):
 
 
 def replace_file_content(file_path: str):
-    with open(file_path) as file:
+    with open(file_path,'r',errors='surrogateescape') as file:
         content = file.read()
         if not is_any_item_in_string(items=replace_dict.keys(), string=content):
             return
