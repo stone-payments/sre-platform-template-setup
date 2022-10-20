@@ -108,16 +108,16 @@ def replace(content: str) -> str:
 
 
 def delete_files():
-    print("Deleting .github/ and .setup/ folders tree")
+    print("Deleting .github/workflows/repo-setup.yml file and .setup/ folder")
     workspace_dir = os.environ["GITHUB_WORKSPACE"]
-    shutil.rmtree(f"{workspace_dir}/.github/")
+    os.remove(f"{workspace_dir}/.github/workflows/repo-setup.yml")
     shutil.rmtree(f"{workspace_dir}/.setup/")
 
 def move_workflows_to_github_path():
-    print("Move desired workflows to .github/ path")
+    print("Move desired workflows to .github/workflows path")
     workspace_dir = os.environ["GITHUB_WORKSPACE"]
     source = f"{workspace_dir}/.workflows"
-    dest   = f"{workspace_dir}/.github/"
+    dest   = f"{workspace_dir}/.github/workflows"
 
     workflows = os.listdir(source)
     for w in workflows:
