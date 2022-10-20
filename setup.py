@@ -109,7 +109,8 @@ def replace(content: str) -> str:
 def delete_files():
     print("Deleting .github/  and .setup/ folders")
     workspace_dir = os.environ["GITHUB_WORKSPACE"]
-    os.remove(f"{workspace_dir}/.github/workflows/repo-setup.yml")
+    # os.remove(f"{workspace_dir}/.github/workflows/repo-setup.yml")
+    shutil.rmtree(f"{workspace_dir}/.github/")
     shutil.rmtree(f"{workspace_dir}/.setup/")
 
 
