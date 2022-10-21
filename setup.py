@@ -17,7 +17,6 @@ from pathlib import Path
 
 IGNORE_FOLDERS = [
     ".git",
-    # ".github",
     ".setup",
 ]
 
@@ -42,11 +41,13 @@ def main():
             rename_file(file, dirpath)
     rename_folders(root)
     delete_files()
-    # move_workflows_to_github_path()
 
 def is_ignored_folder(folder: str) -> bool:
+    root = Path(os.getcwd())
     for ignored in IGNORE_FOLDERS:
-        if ignored in folder:
+        chall_path = f"{os.path.normpath(root)}/{os.path.normpath(ignored)}/"
+        real_path  = f"{os.path.normpath(folder)}/"
+        if chall_path in real_path:
             return True
     return False
 
@@ -112,19 +113,6 @@ def delete_files():
     workspace_dir = os.environ["GITHUB_WORKSPACE"]
     os.remove(f"{workspace_dir}/.github/workflows/repo-setup.yml")
     shutil.rmtree(f"{workspace_dir}/.setup/")
-
-def move_workflows_to_github_path():
-    print("Move desired workflows to .github/workflows path")
-    workspace_dir = os.environ["GITHUB_WORKSPACE"]
-    source = f"{workspace_dir}/.workflows"
-    dest   = f"{workspace_dir}/.github/workflows"
-
-    workflows = os.listdir(source)
-    for w in workflows:
-        src_path = os.path.join(source, w)
-        dst_path = os.path.join(dest, w)
-        shutil.move(src_path, dst_path)
-
 
 def generate_cases(base_dict: dict) -> dict:
     # kebab-case
