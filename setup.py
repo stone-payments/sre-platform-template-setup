@@ -43,7 +43,7 @@ def main():
     delete_files()
 
 def is_ignored_folder(folder: str) -> bool:
-    root = Path(os.getcwd())
+    root = os.environ["GITHUB_WORKSPACE"]
     for ignored in IGNORE_FOLDERS:
         chall_path = f"{os.path.normpath(root)}/{os.path.normpath(ignored)}/"
         real_path  = f"{os.path.normpath(folder)}/"
