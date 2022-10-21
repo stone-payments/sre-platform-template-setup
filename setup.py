@@ -17,7 +17,7 @@ from pathlib import Path
 
 IGNORE_FOLDERS = [
     ".git",
-    ".github",
+    # ".github",
     ".setup",
 ]
 
@@ -42,7 +42,7 @@ def main():
             rename_file(file, dirpath)
     rename_folders(root)
     delete_files()
-    move_workflows_to_github_path()
+    # move_workflows_to_github_path()
 
 def is_ignored_folder(folder: str) -> bool:
     for ignored in IGNORE_FOLDERS:
