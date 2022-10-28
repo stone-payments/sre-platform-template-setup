@@ -8,7 +8,6 @@
 # Example of using this script:
 # python repo-setup.py test.json
 
-from dataclasses import replace
 import os
 import sys
 import json
@@ -30,6 +29,14 @@ IGNORE_EXTENSIONS = [
     ".png",
     ".svg",
     ".bmp",
+]
+
+DELETE_FILES = [
+    ".github/workflows/repo-setup.yml"
+]
+
+DELETE_FOLDERS = [
+    ".setup"
 ]
 
 class Tool:
@@ -61,8 +68,12 @@ class Tool:
         return new_dict
 
 class Ignore:
+    def __init__(self, folders, extensions) -> None:
+        self.folders   = folders
+        self.extensions = extensions
+
     def folder_match(self, folder: str) -> bool:
-        for ignored in IGNORE_FOLDERS:
+        for ignored in self.folders:
             chall_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
             real_path  = f"{os.path.normpath(folder)}/"
             if chall_path in real_path:
@@ -70,14 +81,15 @@ class Ignore:
         return False
 
     def file_extension_match(self, file_name: str) -> bool:
-        for ignored in IGNORE_EXTENSIONS:
+        for ignored in self.extensions:
             if file_name.endswith(ignored):
                 return True
         return False
 
 class Replace:
-    def __init__(self, replace_dict) -> None:
-        self.replace_dict = replace_dict
+    def __init__(self, replace_dict: dict, ignore: Ignore) -> None:
+        self.replace_dict   = replace_dict
+        self.ignore = ignore
         
     def replace(self, content: str) -> str:
         for old_string in self.replace_dict.keys():
@@ -94,49 +106,63 @@ class Replace:
 
         with open(file_path, 'w') as file:
             print(f"REPLACE(file-content) in {file_path}")
-            content = Replace.replace(content)
+            content = self.replace(content)
             file.write(content)
 
     def file_name(self, filename: str, base_path: str):
         if not Tool.is_any_item_in_string(items=self.replace_dict.keys(), string=filename):
             return
-        new_filename = Replace.replace(filename)
+        
+        new_filename = self.replace(filename)
         old_path = os.path.join(base_path, filename)
         new_path = os.path.join(base_path, new_filename)
 
         print(f"RENAME(file): {old_path} -> {new_path}")
         os.rename(old_path, new_path)
 
-
     def folder_name(self, root: str):
         for dirpath, _, _ in os.walk(root):
-            if Ignore.folder_match(dirpath):
+            if self.ignore.folder_match(dirpath):
                 continue
             if not Tool.is_any_item_in_string(items=self.replace_dict.keys(), string=dirpath):
                 continue
-            new_dir = Replace.replace(dirpath)
+            new_dir = self.replace(dirpath)
             print(f"RENAME(folder): {dirpath} -> {new_dir}")
-            os.rename(dirpath, new_dir)
+            shutil.move(dirpath, new_dir)
 
 class Delete:
-    def files():
-        print("Deleting .github/workflows/repo-setup.yml file and .setup/ folder")
-        os.remove(f"{ROOT}/.github/workflows/repo-setup.yml")
-        shutil.rmtree(f"{ROOT}/.setup/")
+    def __init__(self, file_list, folder_list) -> None:
+        self.file_list = file_list
+        self.folder_list = folder_list
+        
+    def files(self):
+        for pathfile in self.file_list:
+            print(f"Deleting \"{pathfile}\" file")
+            os.remove(f"{ROOT}/{pathfile}")
 
+    def folders(self):
+        for pathdir in self.folder_list:
+            print(f"Deleting \"{pathdir}\" folder")
+            shutil.rmtree(f"{ROOT}/{pathdir}")
+            
 def main():
     root = Path(os.getcwd()).parent
     os.chdir(root)
+    delete  = Delete(DELETE_FILES, DELETE_FOLDERS)
+    ignore  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
+    replace = Replace(replace_dict, ignore)
+
     for dirpath, _, files in os.walk(root):
-        if Ignore.folder_match(dirpath):
+        if ignore.folder_match(dirpath):
             continue
         for file in files:
-            if Ignore.file_extension_match(file):
+            if ignore.file_extension_match(file):
                 continue
-            Replace.file_content(os.path.join(dirpath, file))
-            Replace.file_name(file, dirpath)
-    Replace.folder_name(root)
-    Delete.files()
+            replace.file_content(os.path.join(dirpath, file))
+            replace.file_name(file, dirpath)
+    replace.folder_name(root)
+    delete.files()
+    delete.folders()
 
 if __name__ == "__main__":
     print("Script started! Loading bash input...")

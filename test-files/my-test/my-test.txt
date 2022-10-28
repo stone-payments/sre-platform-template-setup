@@ -1,1 +1,0 @@
-THIS WORD NEED BE CHANGED BY setup_test.py -> "my-test".
