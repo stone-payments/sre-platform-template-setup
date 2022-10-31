@@ -1,6 +1,7 @@
+from setup import Tool, Ignore, Replace, Delete
+from pathlib import Path
 import os
 import unittest
-from setup import Tool, Ignore, Replace, Delete
 
 IGNORE_FOLDERS = [
     "my/test",
@@ -25,7 +26,7 @@ DESIRED_DICT = {
   "myTest": "myGreatTest"
 }
 
-ROOT    = os.environ["GITHUB_WORKSPACE"]
+ROOT    = Path(os.getcwd()).parent
 IGNORE  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
 REPLACE = Replace(DESIRED_DICT, IGNORE)
 DELETE  = Delete(DELETE_FILES, DELETE_FOLDERS)

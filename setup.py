@@ -19,7 +19,7 @@ import json
 import shutil
 import humps
 
-ROOT = os.environ["GITHUB_WORKSPACE"]
+ROOT = Path(os.getcwd()).parent
 
 IGNORE_FOLDERS = [
     ".git",
@@ -218,13 +218,12 @@ def main():
     main code execution
     """
 
-    root = Path(os.getcwd()).parent
-    os.chdir(root)
+    os.chdir(ROOT)
     delete  = Delete(DELETE_FILES, DELETE_FOLDERS)
     ignore  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
     replace = Replace(replace_dict, ignore)
 
-    for dirpath, _, files in os.walk(root):
+    for dirpath, _, files in os.walk(ROOT):
         if ignore.folder_match(dirpath):
             continue
         for file in files:
@@ -232,7 +231,7 @@ def main():
                 continue
             replace.file_content(os.path.join(dirpath, file))
             replace.file_name(file, dirpath)
-    replace.folder_name(root)
+    replace.folder_name(ROOT)
     delete.files()
     delete.folders()
 
