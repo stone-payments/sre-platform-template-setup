@@ -87,6 +87,7 @@ class Tool:
             new_dict[new_key] = new_case
         return new_dict
 
+
 class Ignore:
     """
     Ignore class is responsible to ignore folders and files
@@ -117,6 +118,7 @@ class Ignore:
             if file_name.endswith(ignored):
                 return True
         return False
+
 
 class Replace:
     """
@@ -182,6 +184,7 @@ class Replace:
             print(f"RENAME(folder): {dirpath} -> {new_dir}")
             shutil.move(dirpath, new_dir)
 
+
 class Delete:
     """
     Delete class is responsible to delete any content
@@ -209,6 +212,7 @@ class Delete:
             print(f"Deleting \"{pathdir}\" folder")
             shutil.rmtree(f"{ROOT}/{pathdir}")
 
+
 def main():
     """
     main code execution
@@ -231,6 +235,7 @@ def main():
     replace.folder_name(root)
     delete.files()
     delete.folders()
+
 
 if __name__ == "__main__":
     print("Script started! Loading bash input...")

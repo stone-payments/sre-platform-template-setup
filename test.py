@@ -53,6 +53,7 @@ class TestToolAnyItemInString(unittest.TestCase):
 
     self.assertFalse(result)
 
+
 class TestToolGenerateCases(unittest.TestCase):
   def test_generate_cases(self):
     """
@@ -73,6 +74,7 @@ class TestToolGenerateCases(unittest.TestCase):
     result = Tool.generate_cases(test_dict)
 
     self.assertDictEqual(result, expect_dict)
+
 
 class TestIgnoreFolderMatch(unittest.TestCase):
   def test_folder_really_match(self):
@@ -95,6 +97,7 @@ class TestIgnoreFolderMatch(unittest.TestCase):
 
     self.assertFalse(result)
 
+
 class TestIgnoreFileExtensionMatch(unittest.TestCase):
   def test_file_extension_really_match(self):
     """
@@ -116,6 +119,7 @@ class TestIgnoreFileExtensionMatch(unittest.TestCase):
 
     self.assertFalse(result)
 
+
 class TestReplaceReplace(unittest.TestCase):
   def test_replace(self):
     """
@@ -127,6 +131,7 @@ class TestReplaceReplace(unittest.TestCase):
     result = REPLACE.replace(test_content)
 
     self.assertEqual(result, expect_content)
+
 
 class TestReplaceFileContent(unittest.TestCase):
   def test_specific_word_change_in_content_file(self):
@@ -142,6 +147,7 @@ class TestReplaceFileContent(unittest.TestCase):
       result = file.read()
       self.assertEqual(result, expect_content)
 
+
 class TestReplaceFileName(unittest.TestCase):
   def test_rename_file_name(self):
     """
@@ -152,6 +158,7 @@ class TestReplaceFileName(unittest.TestCase):
     validateTest = os.path.exists("test-files/my-great-test.txt")
 
     self.assertTrue(validateTest)
+
 
 class TestReplaceFolderName(unittest.TestCase):
   def test_rename_folder_name(self):
@@ -164,6 +171,7 @@ class TestReplaceFolderName(unittest.TestCase):
 
     self.assertTrue(validateTest)
 
+
 class TestDeleteFiles(unittest.TestCase):
   def test_delete_files(self):
     """
@@ -175,6 +183,7 @@ class TestDeleteFiles(unittest.TestCase):
 
     self.assertFalse(validateTest)
 
+
 class TestDeleteFolder(unittest.TestCase):
   def test_delete_folder(self):
     """
@@ -185,6 +194,7 @@ class TestDeleteFolder(unittest.TestCase):
     validateTest = os.path.exists("test-files/delete-me")
 
     self.assertFalse(validateTest)
+
 
 if __name__ == '__main__':
   unittest.main()
