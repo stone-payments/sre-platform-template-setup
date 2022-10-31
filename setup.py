@@ -8,12 +8,16 @@
 # Example of using this script:
 # python repo-setup.py test.json
 
+"""
+This script helps to setup pattern in desired scaffolder repository
+"""
+
+from pathlib import Path
 import os
 import sys
 import json
 import shutil
 import humps
-from pathlib import Path
 
 ROOT = os.environ["GITHUB_WORKSPACE"]
 
@@ -39,14 +43,30 @@ DELETE_FOLDERS = [
     ".setup"
 ]
 
+
 class Tool:
+    """
+    Tool class contains helpful methods general in general
+    """
+
+    @staticmethod
     def is_any_item_in_string(items: list, string: str) -> bool:
+        """
+        is_any_item_in_string method verifies if exists desired item in content string
+        """
+
         for item in items:
             if item in string:
                 return True
         return False
 
+    @staticmethod
     def generate_cases(base_dict: dict) -> dict:
+        """
+        generate_cases method get dict in kebab-case and adds existing keys-values in
+        differents cases
+        """
+
         # kebab-case
         new_dict = base_dict.copy()
 
@@ -68,11 +88,19 @@ class Tool:
         return new_dict
 
 class Ignore:
-    def __init__(self, folders, extensions) -> None:
+    """
+    Ignore class is responsible to ignore folders and files
+    """
+
+    def __init__(self, folders: list, extensions: list) -> None:
         self.folders   = folders
         self.extensions = extensions
 
     def folder_match(self, folder: str) -> bool:
+        """
+        folder_match method ignores folder that match pathdir in ignore folders list
+        """
+
         for ignored in self.folders:
             chall_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
             real_path  = f"{os.path.normpath(folder)}/"
@@ -81,17 +109,29 @@ class Ignore:
         return False
 
     def file_extension_match(self, file_name: str) -> bool:
+        """
+        file_extension_match ignores files that match filename extension in ignore extensions list
+        """
+
         for ignored in self.extensions:
             if file_name.endswith(ignored):
                 return True
         return False
 
 class Replace:
-    def __init__(self, replace_dict: dict, ignore: Ignore) -> None:
-        self.replace_dict   = replace_dict
+    """
+    Replace class is responsible to replace any content, files or folders in scaffolder repository.
+    """
+
+    def __init__(self, replace_dict_values: dict, ignore: Ignore) -> None:
+        self.replace_dict = replace_dict_values
         self.ignore = ignore
-        
+
     def replace(self, content: str) -> str:
+        """
+        replace method has the core function to replace any content string
+        """
+
         for old_string in self.replace_dict.keys():
             if old_string in content:
                 new_string = self.replace_dict[old_string]
@@ -99,20 +139,28 @@ class Replace:
         return content
 
     def file_content(self, file_path: str):
-        with open(file_path,'r',errors='surrogateescape') as file:
+        """
+        file_content method replace file contents to desired string value
+        """
+
+        with open(file_path,'r',errors='surrogateescape', encoding="utf-8") as file:
             content = file.read()
             if not Tool.is_any_item_in_string(items=self.replace_dict.keys(), string=content):
                 return
 
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding="utf-8") as file:
             print(f"REPLACE(file-content) in {file_path}")
             content = self.replace(content)
             file.write(content)
 
     def file_name(self, filename: str, base_path: str):
+        """
+        file_name method rename filenames to desired new name
+        """
+
         if not Tool.is_any_item_in_string(items=self.replace_dict.keys(), string=filename):
             return
-        
+
         new_filename = self.replace(filename)
         old_path = os.path.join(base_path, filename)
         new_path = os.path.join(base_path, new_filename)
@@ -121,6 +169,10 @@ class Replace:
         os.rename(old_path, new_path)
 
     def folder_name(self, root: str):
+        """
+        folder_name method rename folder names to desired new name
+        """
+
         for dirpath, _, _ in os.walk(root):
             if self.ignore.folder_match(dirpath):
                 continue
@@ -131,21 +183,37 @@ class Replace:
             shutil.move(dirpath, new_dir)
 
 class Delete:
-    def __init__(self, file_list, folder_list) -> None:
+    """
+    Delete class is responsible to delete any content
+    """
+
+    def __init__(self, file_list: list, folder_list: list) -> None:
         self.file_list = file_list
         self.folder_list = folder_list
-        
+
     def files(self):
+        """
+        files method delete all files in delete files list
+        """
+
         for pathfile in self.file_list:
             print(f"Deleting \"{pathfile}\" file")
             os.remove(f"{ROOT}/{pathfile}")
 
     def folders(self):
+        """
+        folders method delete all folders in delete folder list
+        """
+
         for pathdir in self.folder_list:
             print(f"Deleting \"{pathdir}\" folder")
             shutil.rmtree(f"{ROOT}/{pathdir}")
-            
+
 def main():
+    """
+    main code execution
+    """
+
     root = Path(os.getcwd()).parent
     os.chdir(root)
     delete  = Delete(DELETE_FILES, DELETE_FOLDERS)
@@ -166,10 +234,11 @@ def main():
 
 if __name__ == "__main__":
     print("Script started! Loading bash input...")
-    values_file = open(sys.argv[1], "r")
-    replace_dict = Tool.generate_cases(json.loads(values_file.read()))
-    
+
+    with open(sys.argv[1], "r", encoding="utf-8") as json_dict:
+        replace_dict = Tool.generate_cases(json.loads(json_dict.read()))
+        json_dict.close()
+
     main()
 
-    values_file.close()
     print("Script ended successfully!")

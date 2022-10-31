@@ -18,9 +18,16 @@ DELETE_FOLDERS = [
     "test-files/delete-me"
 ]
 
+DESIRED_DICT = {
+  "my-test": "my-great-test", 
+  "my_test": "my_great_test", 
+  "MyTest": "MyGreatTest", 
+  "myTest": "myGreatTest"
+}
+
 ROOT    = os.environ["GITHUB_WORKSPACE"]
 IGNORE  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
-REPLACE = Replace({"my-test": "my-great-test", "my_test": "my_great_test", "MyTest": "MyGreatTest", "myTest": "myGreatTest"}, IGNORE)
+REPLACE = Replace(DESIRED_DICT, IGNORE)
 DELETE  = Delete(DELETE_FILES, DELETE_FOLDERS)
 
 class TestToolAnyItemInString(unittest.TestCase):

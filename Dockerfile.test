@@ -13,6 +13,5 @@ RUN touch test-files/delete-me.txt
 RUN printf "THIS WORD NEED BE CHANGED BY setup_test.py -> my-great-test." > test-files/my-test.txt
 
 ENV GITHUB_WORKSPACE /
-RUN pylint setup.py
 
 CMD ["python", "-m", "unittest", "test.py"]
