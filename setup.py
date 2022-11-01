@@ -28,7 +28,7 @@ IGNORE_EXTENSIONS = [
     ".bmp",
 ]
 
-ROOT = Path(os.getcwd()).parent
+ROOT = os.environ["GITHUB_WORKSPACE"]
 
 def main():
     os.chdir(ROOT)
