@@ -40,7 +40,7 @@ def main():
                 continue
             replace_file_content(os.path.join(dirpath, file))
             rename_file(file, dirpath)
-    rename_folders(ROOT)
+    rename_folders()
     delete_files()
 
 
