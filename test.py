@@ -26,7 +26,7 @@ DESIRED_DICT = {
   "myTest": "myGreatTest"
 }
 
-ROOT    = Path(os.getcwd()).parent
+ROOT    = os.environ["GITHUB_WORKSPACE"]
 IGNORE  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
 REPLACE = Replace(DESIRED_DICT, IGNORE)
 DELETE  = Delete(DELETE_FILES, DELETE_FOLDERS)

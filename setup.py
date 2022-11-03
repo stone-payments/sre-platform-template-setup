@@ -12,14 +12,13 @@
 This script helps to setup pattern in desired scaffolder repository
 """
 
-from pathlib import Path
 import os
 import sys
 import json
 import shutil
 import humps
 
-ROOT = Path(os.getcwd()).parent
+ROOT = os.environ["GITHUB_WORKSPACE"]
 
 IGNORE_FOLDERS = [
     ".git",
