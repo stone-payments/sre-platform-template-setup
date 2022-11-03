@@ -141,7 +141,7 @@ class TestReplaceFileContent(unittest.TestCase):
     """
 
     path = "test-files/my-test.txt"
-    expect_content = "THIS WORD NEED BE CHANGED BY setup_test.py -> my-great-test."
+    expect_content = "THIS WORD NEED BE CHANGED BY test.py -> my-great-test."
     REPLACE.file_content(path)
     
     with open(path,'r',errors='surrogateescape') as file:
