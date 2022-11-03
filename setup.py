@@ -17,7 +17,6 @@ from pathlib import Path
 
 IGNORE_FOLDERS = [
     ".git",
-    ".github",
     ".setup",
 ]
 
@@ -29,10 +28,11 @@ IGNORE_EXTENSIONS = [
     ".bmp",
 ]
 
+ROOT = os.environ["GITHUB_WORKSPACE"]
+
 def main():
-    root = Path(os.getcwd()).parent
-    os.chdir(root)
-    for dirpath, _, files in os.walk(root):
+    os.chdir(ROOT)
+    for dirpath, _, files in os.walk(ROOT):
         if is_ignored_folder(dirpath):
             continue
         for file in files:
@@ -40,13 +40,15 @@ def main():
                 continue
             replace_file_content(os.path.join(dirpath, file))
             rename_file(file, dirpath)
-    rename_folders(root)
+    rename_folders()
     delete_files()
 
 
 def is_ignored_folder(folder: str) -> bool:
     for ignored in IGNORE_FOLDERS:
-        if ignored in folder:
+        ignored_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
+        real_path  = f"{os.path.normpath(folder)}/"
+        if ignored_path in real_path:
             return True
     return False
 
@@ -81,8 +83,8 @@ def rename_file(filename: str, base_path: str):
     os.rename(old_path, new_path)
 
 
-def rename_folders(root: str):
-    for dirpath, _, _ in os.walk(root):
+def rename_folders():
+    for dirpath, _, _ in os.walk(ROOT):
         if is_ignored_folder(dirpath):
             continue
         if not is_any_item_in_string(items=replace_dict.keys(), string=dirpath):
@@ -108,10 +110,9 @@ def replace(content: str) -> str:
 
 
 def delete_files():
-    print("Deleting .github/  and .setup/ folders")
-    workspace_dir = os.environ["GITHUB_WORKSPACE"]
-    os.remove(f"{workspace_dir}/.github/workflows/repo-setup.yml")
-    shutil.rmtree(f"{workspace_dir}/.setup/")
+    print("Deleting .github/workflows/repo-setup.yml file and .setup/ folder")
+    os.remove(f"{ROOT}/.github/workflows/repo-setup.yml")
+    shutil.rmtree(f"{ROOT}/.setup/")
 
 
 def generate_cases(base_dict: dict) -> dict:
