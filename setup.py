@@ -148,6 +148,7 @@ def replace_file_name(mapped_dict: dict, filename: str, base_path: str):
     print(f"RENAME(file): {old_path} -> {new_path}")
     os.rename(old_path, new_path)
 
+
 def replace_folder_name(mapped_dict: dict, root: str, ignore_folders: str):
     """
     folder_name method rename folder names to desired new name
@@ -181,6 +182,7 @@ def delete_folders(pathdirs: list):
     for pathdir in pathdirs:
         print(f"Deleting \"{pathdir}\" folder")
         shutil.rmtree(f"{ROOT}/{pathdir}")
+
 
 def main():
     """
