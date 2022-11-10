@@ -1,4 +1,4 @@
-from setup import Tool, Ignore, Replace, Delete
+from setup import *
 from pathlib import Path
 import os
 import unittest
@@ -27,11 +27,8 @@ DESIRED_DICT = {
 }
 
 ROOT    = os.environ["GITHUB_WORKSPACE"]
-IGNORE  = Ignore(IGNORE_FOLDERS, IGNORE_EXTENSIONS)
-REPLACE = Replace(DESIRED_DICT, IGNORE)
-DELETE  = Delete(DELETE_FILES, DELETE_FOLDERS)
 
-class TestToolAnyItemInString(unittest.TestCase):
+class TestAnyItemInString(unittest.TestCase):
   def test_has_item_in_string(self):
     """
     Has item in string and should return true
@@ -39,7 +36,7 @@ class TestToolAnyItemInString(unittest.TestCase):
 
     items = ["potato", "test", "pineapple"]
     string = "I love pineapple!"
-    result = Tool.is_any_item_in_string(items, string)
+    result = is_any_item_in_string(items, string)
 
     self.assertTrue(result)
 
@@ -50,12 +47,12 @@ class TestToolAnyItemInString(unittest.TestCase):
 
     items = ["potato", "test", "pineapple"]
     string = "I love strawberry!"
-    result = Tool.is_any_item_in_string(items, string)
+    result = is_any_item_in_string(items, string)
 
     self.assertFalse(result)
 
 
-class TestToolGenerateCases(unittest.TestCase):
+class TestGenerateCases(unittest.TestCase):
   def test_generate_cases(self):
     """
     Generate word cases in dictionary (kebab-case, pascalCase, snake_case, camelCase)
@@ -72,7 +69,7 @@ class TestToolGenerateCases(unittest.TestCase):
       "lovePotato": "loveCandy",
     }
 
-    result = Tool.generate_cases(test_dict)
+    result = generate_cases(test_dict)
 
     self.assertDictEqual(result, expect_dict)
 
@@ -84,7 +81,7 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     """
 
     folder = f"{os.path.normpath(ROOT)}/my/test/waw"
-    result = IGNORE.folder_match(folder)
+    result = ignore_folder_match(IGNORE_FOLDERS, folder)
 
     self.assertTrue(result)
 
@@ -94,7 +91,7 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     """
 
     folder = f"{os.path.normpath(ROOT)}/candy/my/test/waw"
-    result = IGNORE.folder_match(folder)
+    result = ignore_folder_match(IGNORE_FOLDERS, folder)
 
     self.assertFalse(result)
 
@@ -106,7 +103,7 @@ class TestIgnoreFileExtensionMatch(unittest.TestCase):
     """
 
     ext = "candy.test"
-    result = IGNORE.file_extension_match(ext)
+    result = ignore_file_extension_match(IGNORE_EXTENSIONS, ext)
 
     self.assertTrue(result)
 
@@ -116,12 +113,12 @@ class TestIgnoreFileExtensionMatch(unittest.TestCase):
     """
 
     ext = "candy.tasty"
-    result = IGNORE.file_extension_match(ext)
+    result = ignore_file_extension_match(IGNORE_EXTENSIONS, ext)
 
     self.assertFalse(result)
 
 
-class TestReplaceReplace(unittest.TestCase):
+class TestReplace(unittest.TestCase):
   def test_replace(self):
     """
     Verify if replace method just replace one string to another string
@@ -129,7 +126,7 @@ class TestReplaceReplace(unittest.TestCase):
 
     test_content = "some word my-test, become my_test... but i prefer MyTest or myTest!"
     expect_content = "some word my-great-test, become my_great_test... but i prefer MyGreatTest or myGreatTest!"
-    result = REPLACE.replace(test_content)
+    result = replace(DESIRED_DICT, test_content)
 
     self.assertEqual(result, expect_content)
 
@@ -142,7 +139,7 @@ class TestReplaceFileContent(unittest.TestCase):
 
     path = "test-files/my-test.txt"
     expect_content = "THIS WORD NEED BE CHANGED BY test.py -> my-great-test."
-    REPLACE.file_content(path)
+    replace_file_content(DESIRED_DICT, path)
     
     with open(path,'r',errors='surrogateescape') as file:
       result = file.read()
@@ -155,7 +152,7 @@ class TestReplaceFileName(unittest.TestCase):
     Verifies if file has been renamed to desired name
     """
 
-    REPLACE.file_name("my-test.txt", "test-files")
+    replace_file_name(DESIRED_DICT, "my-test.txt", "test-files")
     validateTest = os.path.exists("test-files/my-great-test.txt")
 
     self.assertTrue(validateTest)
@@ -167,7 +164,7 @@ class TestReplaceFolderName(unittest.TestCase):
     Verifies if folder name has been renamed
     """
 
-    REPLACE.folder_name("test-files/my-test")
+    replace_folder_name(DESIRED_DICT, "test-files/my-test", IGNORE_FOLDERS)
     validateTest = os.path.exists("test-files/my-great-test")
 
     self.assertTrue(validateTest)
@@ -179,7 +176,7 @@ class TestDeleteFiles(unittest.TestCase):
     The desired file must be deleted
     """
 
-    DELETE.files()
+    delete_files(DELETE_FILES)
     validateTest = os.path.exists("test-files/delete-me.txt")
 
     self.assertFalse(validateTest)
@@ -191,7 +188,7 @@ class TestDeleteFolder(unittest.TestCase):
     The desired folder must be deleted
     """
 
-    DELETE.folders()
+    delete_folders(DELETE_FOLDERS)
     validateTest = os.path.exists("test-files/delete-me")
 
     self.assertFalse(validateTest)
