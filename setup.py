@@ -89,7 +89,7 @@ def ignore_folder_match(ignore_folders: list, folder: str) -> bool:
     for ignored in ignore_folders:
         chall_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
         real_path  = f"{os.path.normpath(folder)}/"
-        if ignored_path in real_path:
+        if chall_path in real_path:
             return True
     return False
 
