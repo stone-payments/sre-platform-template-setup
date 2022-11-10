@@ -89,7 +89,7 @@ def ignore_folder_match(ignore_folders: list, folder: str) -> bool:
     for ignored in ignore_folders:
         chall_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
         real_path  = f"{os.path.normpath(folder)}/"
-        if chall_path in real_path:
+        if ignored_path in real_path:
             return True
     return False
 
@@ -148,7 +148,6 @@ def replace_file_name(mapped_dict: dict, filename: str, base_path: str):
     print(f"RENAME(file): {old_path} -> {new_path}")
     os.rename(old_path, new_path)
 
-
 def replace_folder_name(mapped_dict: dict, root: str, ignore_folders: str):
     """
     folder_name method rename folder names to desired new name
@@ -182,7 +181,6 @@ def delete_folders(pathdirs: list):
     for pathdir in pathdirs:
         print(f"Deleting \"{pathdir}\" folder")
         shutil.rmtree(f"{ROOT}/{pathdir}")
-
 
 def main():
     """
