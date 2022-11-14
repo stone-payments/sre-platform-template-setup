@@ -42,7 +42,7 @@ class TestAnyItemInString(unittest.TestCase):
 
   def test_no_has_item_in_string(self):
     """
-    No has item in string and should return false
+    Hasn't any item in string and should return false
     """
 
     items = ["potato", "test", "pineapple"]
@@ -81,7 +81,7 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     """
 
     folder = f"{os.path.normpath(ROOT)}/my/test/waw"
-    result = ignore_folder_match(IGNORE_FOLDERS, folder)
+    result = is_ignored_folder(IGNORE_FOLDERS, folder)
 
     self.assertTrue(result)
 
@@ -91,7 +91,7 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     """
 
     folder = f"{os.path.normpath(ROOT)}/candy/my/test/waw"
-    result = ignore_folder_match(IGNORE_FOLDERS, folder)
+    result = is_ignored_folder(IGNORE_FOLDERS, folder)
 
     self.assertFalse(result)
 
@@ -103,7 +103,7 @@ class TestIgnoreFileExtensionMatch(unittest.TestCase):
     """
 
     ext = "candy.test"
-    result = ignore_file_extension_match(IGNORE_EXTENSIONS, ext)
+    result = is_ignored_extension(IGNORE_EXTENSIONS, ext)
 
     self.assertTrue(result)
 
@@ -113,7 +113,7 @@ class TestIgnoreFileExtensionMatch(unittest.TestCase):
     """
 
     ext = "candy.tasty"
-    result = ignore_file_extension_match(IGNORE_EXTENSIONS, ext)
+    result = is_ignored_extension(IGNORE_EXTENSIONS, ext)
 
     self.assertFalse(result)
 
@@ -152,7 +152,7 @@ class TestReplaceFileName(unittest.TestCase):
     Verifies if file has been renamed to desired name
     """
 
-    replace_file_name(DESIRED_DICT, "my-test.txt", "test-files")
+    rename_file(DESIRED_DICT, "my-test.txt", "test-files")
     validateTest = os.path.exists("test-files/my-great-test.txt")
 
     self.assertTrue(validateTest)
@@ -164,7 +164,7 @@ class TestReplaceFolderName(unittest.TestCase):
     Verifies if folder name has been renamed
     """
 
-    replace_folder_name(DESIRED_DICT, "test-files/my-test", IGNORE_FOLDERS)
+    rename_folder(DESIRED_DICT, "test-files/my-test", IGNORE_FOLDERS)
     validateTest = os.path.exists("test-files/my-great-test")
 
     self.assertTrue(validateTest)

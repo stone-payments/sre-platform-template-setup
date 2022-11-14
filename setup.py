@@ -81,20 +81,20 @@ def generate_cases(base_dict: dict) -> dict:
     return new_dict
 
 
-def ignore_folder_match(ignore_folders: list, folder: str) -> bool:
+def is_ignored_folder(ignore_folders: list, folder: str) -> bool:
     """
     folder_match method ignores folder that match pathdir in ignore folders list
     """
 
     for ignored in ignore_folders:
-        chall_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
+        ignored_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
         real_path  = f"{os.path.normpath(folder)}/"
-        if chall_path in real_path:
+        if ignored_path in real_path:
             return True
     return False
 
 
-def ignore_file_extension_match(ignore_extensions: list, file_name: str) -> bool:
+def is_ignored_extension(ignore_extensions: list, file_name: str) -> bool:
     """
     file_extension_match ignores files that match filename extension in ignore extensions list
     """
@@ -133,7 +133,7 @@ def replace_file_content(mapped_dict: dict, file_path: str):
         file.write(content)
 
 
-def replace_file_name(mapped_dict: dict, filename: str, base_path: str):
+def rename_file(mapped_dict: dict, filename: str, base_path: str):
     """
     file_name method rename filenames to desired new name
     """
@@ -149,13 +149,13 @@ def replace_file_name(mapped_dict: dict, filename: str, base_path: str):
     os.rename(old_path, new_path)
 
 
-def replace_folder_name(mapped_dict: dict, root: str, ignore_folders: str):
+def rename_folder(mapped_dict: dict, root: str, ignore_folders: str):
     """
     folder_name method rename folder names to desired new name
     """
 
     for dirpath, _, _ in os.walk(root):
-        if ignore_folder_match(ignore_folders, dirpath):
+        if is_ignored_folder(ignore_folders, dirpath):
             continue
         if not is_any_item_in_string(items=mapped_dict.keys(), string=dirpath):
             continue
@@ -192,14 +192,14 @@ def main():
     os.chdir(ROOT)
 
     for dirpath, _, files in os.walk(ROOT):
-        if ignore_folder_match(IGNORE_FOLDERS, dirpath):
+        if is_ignored_folder(IGNORE_FOLDERS, dirpath):
             continue
         for file in files:
-            if ignore_file_extension_match(IGNORE_EXTENSIONS, file):
+            if is_ignored_extension(IGNORE_EXTENSIONS, file):
                 continue
             replace_file_content(replace_dict, os.path.join(dirpath, file))
-            replace_file_name(replace_dict, file, dirpath)
-    replace_folder_name(replace_dict, ROOT, IGNORE_FOLDERS)
+            rename_file(replace_dict, file, dirpath)
+    rename_folder(replace_dict, ROOT, IGNORE_FOLDERS)
     delete_files(DELETE_FILES)
     delete_folders(DELETE_FOLDERS)
 
