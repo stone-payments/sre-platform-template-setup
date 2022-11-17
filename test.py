@@ -26,7 +26,7 @@ DESIRED_DICT = {
   "myTest": "myGreatTest"
 }
 
-ROOT    = os.environ["GITHUB_WORKSPACE"]
+ROOT = os.environ["GITHUB_WORKSPACE"]
 
 class TestAnyItemInString(unittest.TestCase):
   def test_has_item_in_string(self):
@@ -192,6 +192,46 @@ class TestDeleteFolder(unittest.TestCase):
     validateTest = os.path.exists("test-files/delete-me")
 
     self.assertFalse(validateTest)
+
+
+class TestMain(unittest.TestCase):
+  def test_main(self):
+    """
+    The main execution need run as expected
+    """
+
+    fails = []
+    main(DESIRED_DICT, "./main-test")
+
+    with open('main-test/checkContent.txt','r',errors='surrogateescape') as file:
+      content_result = file.read()
+
+    checks = {
+      "ignore": {
+        "folder": os.path.exists("main-test/.github/my-test.txt"),
+        "extension": os.path.exists("main-test/my-test.svg")
+      },
+      "delete": {
+        "file": not os.path.exists("main-test/.github/workflows/repo-setup.yml"),
+        "folder": not os.path.exists("main-test/.setup")
+      },
+      "replace": {
+        "content": content_result == "my-great-test",
+        "file_name": os.path.exists("main-test/my-great-test.txt"),
+        "folder_name": os.path.exists("main-test/my-great-test")
+      }
+    }
+
+    for topics, results in checks.items():
+      for chall, success in results.items():
+        if not success:
+          fails.append(f"Failed in {topics} -> {chall}")
+    
+    if len(fails) > 0:
+      for fail in fails: print(fail)
+      self.assertTrue(False)
+    
+    self.assertTrue(True)
 
 
 if __name__ == '__main__':

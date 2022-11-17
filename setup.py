@@ -81,13 +81,13 @@ def generate_cases(base_dict: dict) -> dict:
     return new_dict
 
 
-def is_ignored_folder(ignore_folders: list, folder: str) -> bool:
+def is_ignored_folder(ignore_folders: list, folder: str, root: str) -> bool:
     """
     folder_match method ignores folder that match pathdir in ignore folders list
     """
 
     for ignored in ignore_folders:
-        ignored_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
+        ignored_path = f"{os.path.normpath(root)}/{os.path.normpath(ignored)}/"
         real_path  = f"{os.path.normpath(folder)}/"
         if ignored_path in real_path:
             return True
@@ -184,22 +184,22 @@ def delete_folders(pathdirs: list):
         shutil.rmtree(f"{ROOT}/{pathdir}")
 
 
-def main():
+def main(mapped_dict: dict, root: str):
     """
     main code execution
     """
 
-    os.chdir(ROOT)
+    os.chdir(root)
 
-    for dirpath, _, files in os.walk(ROOT):
+    for dirpath, _, files in os.walk(root):
         if is_ignored_folder(IGNORE_FOLDERS, dirpath):
             continue
         for file in files:
             if is_ignored_extension(IGNORE_EXTENSIONS, file):
                 continue
-            replace_file_content(replace_dict, os.path.join(dirpath, file))
-            rename_file(replace_dict, file, dirpath)
-    rename_folder(replace_dict, ROOT, IGNORE_FOLDERS)
+            replace_file_content(mapped_dict, os.path.join(dirpath, file))
+            rename_file(mapped_dict, file, dirpath)
+    rename_folder(mapped_dict, root, IGNORE_FOLDERS)
     delete_files(DELETE_FILES)
     delete_folders(DELETE_FOLDERS)
 
@@ -211,6 +211,6 @@ if __name__ == "__main__":
         replace_dict = generate_cases(json.loads(json_dict.read()))
         json_dict.close()
 
-    main()
+    main(replace_dict, ROOT)
 
     print("Script ended successfully!")

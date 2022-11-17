@@ -10,7 +10,18 @@ RUN mkdir test-files
 RUN mkdir test-files/delete-me
 RUN mkdir test-files/my-test
 RUN touch test-files/delete-me.txt
-RUN printf "THIS WORD NEED BE CHANGED BY test.py -> my-great-test." > test-files/my-test.txt
+RUN printf "THIS WORD NEED BE CHANGED BY test.py -> my-test." > test-files/my-test.txt
+
+RUN mkdir main-test
+RUN mkdir main-test/.github
+RUN mkdir main-test/.github/workflows
+RUN mkdir main-test/.setup
+RUN mkdir main-test/my-test
+RUN touch main-test/my-test.svg
+RUN touch main-test/my-test.txt
+RUN touch main-test/.github/my-test.txt
+RUN touch main-test/.github/workflows/repo-setup.yml
+RUN printf "my-test" > main-test/checkContent.txt
 
 ENV GITHUB_WORKSPACE /
 
