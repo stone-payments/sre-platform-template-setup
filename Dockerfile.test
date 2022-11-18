@@ -23,6 +23,6 @@ RUN touch main-test/.github/my-test.txt
 RUN touch main-test/.github/workflows/repo-setup.yml
 RUN printf "my-test" > main-test/checkContent.txt
 
-ENV GITHUB_WORKSPACE /
+ENV GITHUB_WORKSPACE /main-test
 
 CMD ["python", "-m", "unittest", "test.py"]

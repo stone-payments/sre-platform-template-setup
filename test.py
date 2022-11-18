@@ -12,11 +12,11 @@ IGNORE_EXTENSIONS = [
 ]
 
 DELETE_FILES = [
-    "test-files/delete-me.txt"
+    "delete-me.txt"
 ]
 
 DELETE_FOLDERS = [
-    "test-files/delete-me"
+    "delete-me"
 ]
 
 DESIRED_DICT = {
@@ -25,8 +25,6 @@ DESIRED_DICT = {
   "MyTest": "MyGreatTest", 
   "myTest": "myGreatTest"
 }
-
-ROOT = os.environ["GITHUB_WORKSPACE"]
 
 class TestAnyItemInString(unittest.TestCase):
   def test_has_item_in_string(self):
@@ -80,8 +78,8 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     Folder match with some item in folder ignore list
     """
 
-    folder = f"{os.path.normpath(ROOT)}/my/test/waw"
-    result = is_ignored_folder(IGNORE_FOLDERS, folder)
+    folder = f"{os.path.normpath('test-files')}/my/test/waw"
+    result = is_ignored_folder(IGNORE_FOLDERS, folder, 'test-files')
 
     self.assertTrue(result)
 
@@ -90,8 +88,8 @@ class TestIgnoreFolderMatch(unittest.TestCase):
     Folder not match with some item in folder ignore list
     """
 
-    folder = f"{os.path.normpath(ROOT)}/candy/my/test/waw"
-    result = is_ignored_folder(IGNORE_FOLDERS, folder)
+    folder = f"{os.path.normpath('test-files')}/candy/my/test/waw"
+    result = is_ignored_folder(IGNORE_FOLDERS, folder, 'test-files')
 
     self.assertFalse(result)
 
@@ -137,7 +135,7 @@ class TestReplaceFileContent(unittest.TestCase):
     The desired word in file content need be changed ("my-test")
     """
 
-    path = "test-files/my-test.txt"
+    path = "/test-files/my-test.txt"
     expect_content = "THIS WORD NEED BE CHANGED BY test.py -> my-great-test."
     replace_file_content(DESIRED_DICT, path)
     
@@ -152,8 +150,8 @@ class TestReplaceFileName(unittest.TestCase):
     Verifies if file has been renamed to desired name
     """
 
-    rename_file(DESIRED_DICT, "my-test.txt", "test-files")
-    validateTest = os.path.exists("test-files/my-great-test.txt")
+    rename_file(DESIRED_DICT, "my-test.txt", "/test-files")
+    validateTest = os.path.exists("/test-files/my-great-test.txt")
 
     self.assertTrue(validateTest)
 
@@ -164,8 +162,8 @@ class TestReplaceFolderName(unittest.TestCase):
     Verifies if folder name has been renamed
     """
 
-    rename_folder(DESIRED_DICT, "test-files/my-test", IGNORE_FOLDERS)
-    validateTest = os.path.exists("test-files/my-great-test")
+    rename_folder(DESIRED_DICT, "/test-files/my-test", IGNORE_FOLDERS)
+    validateTest = os.path.exists("/test-files/my-great-test")
 
     self.assertTrue(validateTest)
 
@@ -176,7 +174,7 @@ class TestDeleteFiles(unittest.TestCase):
     The desired file must be deleted
     """
 
-    delete_files(DELETE_FILES)
+    delete_files(DELETE_FILES, 'test-files')
     validateTest = os.path.exists("test-files/delete-me.txt")
 
     self.assertFalse(validateTest)
@@ -188,7 +186,7 @@ class TestDeleteFolder(unittest.TestCase):
     The desired folder must be deleted
     """
 
-    delete_folders(DELETE_FOLDERS)
+    delete_folders(DELETE_FOLDERS, 'test-files')
     validateTest = os.path.exists("test-files/delete-me")
 
     self.assertFalse(validateTest)
@@ -200,25 +198,26 @@ class TestMain(unittest.TestCase):
     The main execution need run as expected
     """
 
+    root = os.environ["GITHUB_WORKSPACE"]
     fails = []
-    main(DESIRED_DICT, "./main-test")
+    main(DESIRED_DICT, root)
 
-    with open('main-test/checkContent.txt','r',errors='surrogateescape') as file:
+    with open(os.path.join(root, 'checkContent.txt'),'r',errors='surrogateescape') as file:
       content_result = file.read()
 
     checks = {
       "ignore": {
-        "folder": os.path.exists("main-test/.github/my-test.txt"),
-        "extension": os.path.exists("main-test/my-test.svg")
+        "folder": os.path.exists(os.path.join(root, ".github/my-test.txt")),
+        "extension": os.path.exists(os.path.join(root, "my-test.svg"))
       },
       "delete": {
-        "file": not os.path.exists("main-test/.github/workflows/repo-setup.yml"),
-        "folder": not os.path.exists("main-test/.setup")
+        "file": not os.path.exists(os.path.join(root, ".github/workflows/repo-setup.yml")),
+        "folder": not os.path.exists(os.path.join(root,".setup"))
       },
       "replace": {
         "content": content_result == "my-great-test",
-        "file_name": os.path.exists("main-test/my-great-test.txt"),
-        "folder_name": os.path.exists("main-test/my-great-test")
+        "file_name": os.path.exists(os.path.join(root, "my-great-test.txt")),
+        "folder_name": os.path.exists(os.path.join(root, "my-great-test"))
       }
     }
 

@@ -155,7 +155,7 @@ def rename_folder(mapped_dict: dict, root: str, ignore_folders: str):
     """
 
     for dirpath, _, _ in os.walk(root):
-        if is_ignored_folder(ignore_folders, dirpath):
+        if is_ignored_folder(ignore_folders, dirpath, root):
             continue
         if not is_any_item_in_string(items=mapped_dict.keys(), string=dirpath):
             continue
@@ -164,24 +164,24 @@ def rename_folder(mapped_dict: dict, root: str, ignore_folders: str):
         shutil.move(dirpath, new_dir)
 
 
-def delete_files(pathfiles: list):
+def delete_files(pathfiles: list, root: str):
     """
     files method delete all files in delete files list
     """
 
     for pathfile in pathfiles:
         print(f"Deleting \"{pathfile}\" file")
-        os.remove(f"{ROOT}/{pathfile}")
+        os.remove(os.path.join(root, pathfile))
 
 
-def delete_folders(pathdirs: list):
+def delete_folders(pathdirs: list, root: str):
     """
     folders method delete all folders in delete folder list
     """
 
     for pathdir in pathdirs:
         print(f"Deleting \"{pathdir}\" folder")
-        shutil.rmtree(f"{ROOT}/{pathdir}")
+        shutil.rmtree(f"{root}/{pathdir}")
 
 
 def main(mapped_dict: dict, root: str):
@@ -190,9 +190,8 @@ def main(mapped_dict: dict, root: str):
     """
 
     os.chdir(root)
-
     for dirpath, _, files in os.walk(root):
-        if is_ignored_folder(IGNORE_FOLDERS, dirpath):
+        if is_ignored_folder(IGNORE_FOLDERS, dirpath, root):
             continue
         for file in files:
             if is_ignored_extension(IGNORE_EXTENSIONS, file):
@@ -200,8 +199,8 @@ def main(mapped_dict: dict, root: str):
             replace_file_content(mapped_dict, os.path.join(dirpath, file))
             rename_file(mapped_dict, file, dirpath)
     rename_folder(mapped_dict, root, IGNORE_FOLDERS)
-    delete_files(DELETE_FILES)
-    delete_folders(DELETE_FOLDERS)
+    delete_files(DELETE_FILES, root)
+    delete_folders(DELETE_FOLDERS, root)
 
 
 if __name__ == "__main__":
@@ -214,3 +213,4 @@ if __name__ == "__main__":
     main(replace_dict, ROOT)
 
     print("Script ended successfully!")
+    
