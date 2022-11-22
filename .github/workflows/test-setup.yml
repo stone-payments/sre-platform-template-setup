@@ -12,6 +12,9 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
 
+      - name: Get Dependencies
+        run: make build
+
       - name: Check Lint
         run: make lint
 
