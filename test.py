@@ -1,5 +1,5 @@
 from setup import *
-from pathlib import Path
+from unittest.mock import patch, mock_open, Mock
 import os
 import unittest
 
@@ -136,13 +136,13 @@ class TestReplaceFileContent(unittest.TestCase):
     """
 
     path = "/test-files/my-test.txt"
-    expect_content = "THIS WORD NEED BE CHANGED BY test.py -> my-great-test."
-    replace_file_content(DESIRED_DICT, path)
     
-    with open(path,'r',errors='surrogateescape') as file:
-      result = file.read()
-      self.assertEqual(result, expect_content)
-
+    with patch("builtins.open", mock_open(read_data="data")) as mock_file:
+      with patch('setup.is_any_item_in_string') as mock_method:
+        mock_method.get.side_effect = False
+        replace_file_content(DESIRED_DICT, path)
+        mock_file.mock_calls[0].assert_called_once_with(path, 'r', errors='surrogateescape', encoding="utf-8")
+        mock_file.mock_calls[4].assert_called_once_with(path, 'w', encoding="utf-8")
 
 class TestReplaceFileName(unittest.TestCase):
   def test_rename_file_name(self):
@@ -150,10 +150,11 @@ class TestReplaceFileName(unittest.TestCase):
     Verifies if file has been renamed to desired name
     """
 
-    rename_file(DESIRED_DICT, "my-test.txt", "/test-files")
-    validateTest = os.path.exists("/test-files/my-great-test.txt")
-
-    self.assertTrue(validateTest)
+    with patch('os.rename') as mock_rename:
+      with patch('setup.is_any_item_in_string') as mock_method:
+        mock_method.get.side_effect = False
+        rename_file(DESIRED_DICT, "my-test.txt", "/test-files")
+        mock_rename.assert_called_once_with('/test-files/my-test.txt', '/test-files/my-great-test.txt')
 
 
 class TestReplaceFolderName(unittest.TestCase):
@@ -161,12 +162,16 @@ class TestReplaceFolderName(unittest.TestCase):
     """
     Verifies if folder name has been renamed
     """
-
-    rename_folder(DESIRED_DICT, "/test-files/my-test", IGNORE_FOLDERS)
-    validateTest = os.path.exists("/test-files/my-great-test")
-
-    self.assertTrue(validateTest)
-
+    
+    with patch('os.walk') as mock_walk:
+      with patch('shutil.move') as mock_move:
+        with patch('setup.is_ignored_folder') as mock_ignore_folder:
+          with patch('setup.is_any_item_in_string') as mock_has_string:
+            mock_ignore_folder.return_value = False
+            mock_has_string.return_value = True
+            mock_walk.return_value = [('/test-files/my-test', ('test',), ('test',))]
+            rename_folder(DESIRED_DICT, "/test-files/my-test", IGNORE_FOLDERS)
+            mock_move.assert_called_with('/test-files/my-test', '/test-files/my-great-test')
 
 class TestDeleteFiles(unittest.TestCase):
   def test_delete_files(self):
@@ -174,11 +179,9 @@ class TestDeleteFiles(unittest.TestCase):
     The desired file must be deleted
     """
 
-    delete_files(DELETE_FILES, 'test-files')
-    validateTest = os.path.exists("test-files/delete-me.txt")
-
-    self.assertFalse(validateTest)
-
+    with patch('os.remove') as mock_remove:
+      delete_files(DELETE_FILES, 'test-files')
+      mock_remove.assert_called_with('test-files/delete-me.txt')
 
 class TestDeleteFolder(unittest.TestCase):
   def test_delete_folder(self):
@@ -186,10 +189,9 @@ class TestDeleteFolder(unittest.TestCase):
     The desired folder must be deleted
     """
 
-    delete_folders(DELETE_FOLDERS, 'test-files')
-    validateTest = os.path.exists("test-files/delete-me")
-
-    self.assertFalse(validateTest)
+    with patch('shutil.rmtree') as mock_remove:
+      delete_folders(DELETE_FOLDERS, 'test-files')
+      mock_remove.assert_called_with('test-files/delete-me')
 
 
 class TestMain(unittest.TestCase):
@@ -197,41 +199,29 @@ class TestMain(unittest.TestCase):
     """
     The main execution need run as expected
     """
+    root = 'testing'
+    with patch('os.walk') as mock_walk:
+      with patch('os.chdir') as mock_chdir:
+        with patch('setup.is_ignored_folder') as mock_ignored_folder:
+          with patch('setup.is_ignored_extension') as mock_ignored_extension:
+            with patch('setup.replace_file_content') as mock_replace_content:
+              with patch('setup.rename_folder') as mock_rename_file:
+                with patch('setup.delete_files') as mock_delete_files:
+                  with patch('setup.delete_folders') as mock_delete_folders:
+                    mock_walk.return_value = [('/test-files/my-test', ('test',), (['test']))]
+                    mock_ignored_folder.return_value = False
+                    mock_ignored_extension.return_value = False
 
-    root = os.environ["GITHUB_WORKSPACE"]
-    fails = []
-    main(DESIRED_DICT, root)
-
-    with open(os.path.join(root, 'checkContent.txt'),'r',errors='surrogateescape') as file:
-      content_result = file.read()
-
-    checks = {
-      "ignore": {
-        "folder": os.path.exists(os.path.join(root, ".github/my-test.txt")),
-        "extension": os.path.exists(os.path.join(root, "my-test.svg"))
-      },
-      "delete": {
-        "file": not os.path.exists(os.path.join(root, ".github/workflows/repo-setup.yml")),
-        "folder": not os.path.exists(os.path.join(root,".setup"))
-      },
-      "replace": {
-        "content": content_result == "my-great-test",
-        "file_name": os.path.exists(os.path.join(root, "my-great-test.txt")),
-        "folder_name": os.path.exists(os.path.join(root, "my-great-test"))
-      }
-    }
-
-    for topics, results in checks.items():
-      for chall, success in results.items():
-        if not success:
-          fails.append(f"Failed in {topics} -> {chall}")
-    
-    if len(fails) > 0:
-      for fail in fails: print(fail)
-      self.assertTrue(False)
-    
-    self.assertTrue(True)
-
+                    main(DESIRED_DICT, root)
+                    
+                    mock_chdir.assert_called_once()
+                    mock_ignored_folder.assert_called()
+                    mock_ignored_extension.assert_called()
+                    mock_replace_content.assert_called()
+                    mock_rename_file.assert_called()
+                    mock_delete_files.assert_called()
+                    mock_delete_folders.assert_called()
+      
 
 if __name__ == '__main__':
   unittest.main()

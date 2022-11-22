@@ -1,7 +1,8 @@
+build:
+	python -m pip install -r requirements.txt
+
 test:
-	docker build -f ./Dockerfile.test -t setup-test .
-	docker run --rm setup-test
+	python -m unittest
 
 lint:
-	python -m pip install -r requirements.txt
 	pylint setup.py
