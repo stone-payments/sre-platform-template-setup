@@ -1,0 +1,23 @@
+name: Test Template Setup
+
+on: push
+
+jobs:
+  verify-script:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Get Dependencies
+        run: make build
+
+      - name: Check Lint
+        run: make lint
+
+      - name: Check Tests
+        run: make test
+

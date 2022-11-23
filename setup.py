@@ -8,15 +8,21 @@
 # Example of using this script:
 # python repo-setup.py test.json
 
+"""
+This script helps to setup pattern in desired scaffolder repository
+"""
+
 import os
 import sys
 import json
 import shutil
 import humps
-from pathlib import Path
+
+ROOT = os.environ["GITHUB_WORKSPACE"]
 
 IGNORE_FOLDERS = [
     ".git",
+    ".github",
     ".setup",
 ]
 
@@ -28,94 +34,32 @@ IGNORE_EXTENSIONS = [
     ".bmp",
 ]
 
-ROOT = os.environ["GITHUB_WORKSPACE"]
+DELETE_FILES = [
+    ".github/workflows/repo-setup.yml"
+]
 
-def main():
-    os.chdir(ROOT)
-    for dirpath, _, files in os.walk(ROOT):
-        if is_ignored_folder(dirpath):
-            continue
-        for file in files:
-            if is_ignored_extension(file):
-                continue
-            replace_file_content(os.path.join(dirpath, file))
-            rename_file(file, dirpath)
-    rename_folders()
-    delete_files()
+DELETE_FOLDERS = [
+    ".setup"
+]
 
 
-def is_ignored_folder(folder: str) -> bool:
-    for ignored in IGNORE_FOLDERS:
-        ignored_path = f"{os.path.normpath(ROOT)}/{os.path.normpath(ignored)}/"
-        real_path  = f"{os.path.normpath(folder)}/"
-        if ignored_path in real_path:
-            return True
-    return False
+def is_any_item_in_string(items: list, string: str) -> bool:
+    """
+    is_any_item_in_string method verifies if exists desired item in content string
+    """
 
-
-def is_ignored_extension(file_name: str):
-    for ignored in IGNORE_EXTENSIONS:
-        if file_name.endswith(ignored):
-            return True
-    return False
-
-
-def replace_file_content(file_path: str):
-    with open(file_path,'r',errors='surrogateescape') as file:
-        content = file.read()
-        if not is_any_item_in_string(items=replace_dict.keys(), string=content):
-            return
-
-    with open(file_path, 'w') as file:
-        print(f"REPLACE(file-content) in {file_path}")
-        content = replace(content)
-        file.write(content)
-
-
-def rename_file(filename: str, base_path: str):
-    if not is_any_item_in_string(items=replace_dict.keys(), string=filename):
-        return
-    new_filename = replace(filename)
-    old_path = os.path.join(base_path, filename)
-    new_path = os.path.join(base_path, new_filename)
-
-    print(f"RENAME(file): {old_path} -> {new_path}")
-    os.rename(old_path, new_path)
-
-
-def rename_folders():
-    for dirpath, _, _ in os.walk(ROOT):
-        if is_ignored_folder(dirpath):
-            continue
-        if not is_any_item_in_string(items=replace_dict.keys(), string=dirpath):
-            continue
-        new_dir = replace(dirpath)
-        print(f"RENAME(folder): {dirpath} -> {new_dir}")
-        os.rename(dirpath, new_dir)
-
-
-def is_any_item_in_string(items, string) -> bool:
     for item in items:
         if item in string:
             return True
     return False
 
 
-def replace(content: str) -> str:
-    for old_string in replace_dict.keys():
-        if old_string in content:
-            new_string = replace_dict[old_string]
-            content = content.replace(old_string, new_string)
-    return content
-
-
-def delete_files():
-    print("Deleting .github/workflows/repo-setup.yml file and .setup/ folder")
-    os.remove(f"{ROOT}/.github/workflows/repo-setup.yml")
-    shutil.rmtree(f"{ROOT}/.setup/")
-
-
 def generate_cases(base_dict: dict) -> dict:
+    """
+    generate_cases method get dict in kebab-case and adds existing keys-values in
+    differents cases
+    """
+
     # kebab-case
     new_dict = base_dict.copy()
 
@@ -137,11 +81,136 @@ def generate_cases(base_dict: dict) -> dict:
     return new_dict
 
 
-print("Script started! Loading bash input...")
+def is_ignored_folder(ignore_folders: list, folder: str, root: str) -> bool:
+    """
+    folder_match method ignores folder that match pathdir in ignore folders list
+    """
 
-values_file = open(sys.argv[1], "r")
-replace_dict = generate_cases(json.loads(values_file.read()))
-main()
-values_file.close()
+    for ignored in ignore_folders:
+        ignored_path = f"{os.path.normpath(root)}/{os.path.normpath(ignored)}/"
+        real_path  = f"{os.path.normpath(folder)}/"
+        if ignored_path in real_path:
+            return True
+    return False
 
-print("Script ended successfully!")
+
+def is_ignored_extension(ignore_extensions: list, file_name: str) -> bool:
+    """
+    file_extension_match ignores files that match filename extension in ignore extensions list
+    """
+
+    for ignored in ignore_extensions:
+        if file_name.endswith(ignored):
+            return True
+    return False
+
+
+def replace(mapped_dict: dict, content: str) -> str:
+    """
+    replace method has the core function to replace any content string
+    """
+
+    for old_string in mapped_dict.keys():
+        if old_string in content:
+            new_string = mapped_dict[old_string]
+            content = content.replace(old_string, new_string)
+    return content
+
+
+def replace_file_content(mapped_dict: dict, file_path: str):
+    """
+    file_content method replace file contents to desired string value
+    """
+
+    with open(file_path,'r',errors='surrogateescape', encoding="utf-8") as file:
+        content = file.read()
+        if not is_any_item_in_string(items=mapped_dict.keys(), string=content):
+            return
+
+    with open(file_path, 'w', encoding="utf-8") as file:
+        print(f"REPLACE(file-content) in {file_path}")
+        content = replace(mapped_dict, content)
+        file.write(content)
+
+
+def rename_file(mapped_dict: dict, filename: str, base_path: str):
+    """
+    file_name method rename filenames to desired new name
+    """
+
+    if not is_any_item_in_string(items=mapped_dict.keys(), string=filename):
+        return
+
+    new_filename = replace(mapped_dict, filename)
+    old_path = os.path.join(base_path, filename)
+    new_path = os.path.join(base_path, new_filename)
+
+    print(f"RENAME(file): {old_path} -> {new_path}")
+    os.rename(old_path, new_path)
+
+
+def rename_folder(mapped_dict: dict, root: str, ignore_folders: str):
+    """
+    folder_name method rename folder names to desired new name
+    """
+
+    for dirpath, _, _ in os.walk(root):
+        if is_ignored_folder(ignore_folders, dirpath, root):
+            continue
+        if not is_any_item_in_string(items=mapped_dict.keys(), string=dirpath):
+            continue
+        new_dir = replace(mapped_dict, dirpath)
+        print(f"RENAME(folder): {dirpath} -> {new_dir}")
+        shutil.move(dirpath, new_dir)
+
+
+def delete_files(pathfiles: list, root: str):
+    """
+    files method delete all files in delete files list
+    """
+
+    for pathfile in pathfiles:
+        print(f"Deleting \"{pathfile}\" file")
+        os.remove(os.path.join(root, pathfile))
+
+
+def delete_folders(pathdirs: list, root: str):
+    """
+    folders method delete all folders in delete folder list
+    """
+
+    for pathdir in pathdirs:
+        print(f"Deleting \"{pathdir}\" folder")
+        shutil.rmtree(f"{root}/{pathdir}")
+
+
+def main(mapped_dict: dict, root: str):
+    """
+    main code execution
+    """
+
+    os.chdir(root)
+    for dirpath, _, files in os.walk(root):
+        if is_ignored_folder(IGNORE_FOLDERS, dirpath, root):
+            continue
+        for file in files:
+            if is_ignored_extension(IGNORE_EXTENSIONS, file):
+                continue
+            replace_file_content(mapped_dict, os.path.join(dirpath, file))
+            rename_file(mapped_dict, file, dirpath)
+    rename_folder(mapped_dict, root, IGNORE_FOLDERS)
+    delete_files(DELETE_FILES, root)
+    delete_folders(DELETE_FOLDERS, root)
+
+
+if __name__ == "__main__":
+    print("Script started! Loading bash input...")
+
+    with open(sys.argv[1], "r", encoding="utf-8") as json_dict:
+        replace_dict = generate_cases(json.loads(json_dict.read()))
+        json_dict.close()
+
+    main(replace_dict, ROOT)
+
+    print("Script ended successfully!")
+    
