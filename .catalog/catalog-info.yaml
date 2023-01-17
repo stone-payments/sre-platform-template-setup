@@ -1,0 +1,18 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: sre-platform-template-setup
+  title: Template Setup GitHub Action
+  description: A GitHub Action that modifies a repository content to properly setup it based on given parameters.
+  namespace: stone-payments
+  annotations:
+    github.com/project-slug: stone-payments/sre-platform-template-setup
+  links:
+    - url: https://github.com/stone-payments/sre-platform-template-setup
+      title: Repositório
+      icon: github
+spec:
+  type: library
+  lifecycle: experimental
+  owner: sre-platform
+  subcomponentOf: component:sre-platform-template-setup-workflow
